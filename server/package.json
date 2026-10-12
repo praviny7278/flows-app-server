@@ -1,0 +1,34 @@
+{
+  "name": "flowops-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --require ./src/bootstrap.cjs --watch src/index.js",
+    "start": "node --max-old-space-size=4096 --require ./src/bootstrap.cjs src/index.js",
+    "start:cluster": "node --max-old-space-size=4096 --require ./src/bootstrap.cjs src/cluster.js",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:seed": "prisma db seed",
+    "db:setup": "npm run db:generate && npm run db:push && npm run db:seed"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "bcryptjs": "^3.0.2",
+    "compression": "^1.8.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.7.1",
+    "ioredis": "^6.0.0",
+    "mongodb": "^6.21.0",
+    "mongoose": "^8.24.4",
+    "prisma": "^6.19.3",
+    "rate-limit-redis": "^6.0.1",
+    "resend": "^6.32.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.8.1"
+  }
+}

@@ -1,0 +1,4241 @@
+{
+  "info": {
+    "name": "FlowOps API",
+    "description": "Importable collection for the documented FlowOps API. Run Health first, then Login. Postman stores the flowops_session cookie automatically. Requests that write, delete, or send email can change data or contact real recipients; run those individually and only against a test database.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000",
+      "type": "string"
+    },
+    {
+      "key": "organizationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "projectId",
+      "value": "northstar-expansion",
+      "type": "string"
+    },
+    {
+      "key": "taskId",
+      "value": "task-1",
+      "type": "string"
+    },
+    {
+      "key": "email",
+      "value": "team@flowops.example",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "password123",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "health"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /health/db",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/health/db",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "health",
+                "db"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication and profile",
+      "item": [
+        {
+          "name": "POST /api/v1/auth/login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"rememberMe\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) { const body = pm.response.json(); if (body.user?.organization?.id) pm.environment.set('organizationId', body.user.organization.id); if (body.user?.id) pm.environment.set('userId', body.user.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/v1/auth/logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/auth/me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "PATCH /api/v1/auth/me",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ariana Patel\",\n  \"timezone\": \"America/Los_Angeles\",\n  \"preferences\": {\n    \"theme\": \"dark\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/organizations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        }
+      ]
+    },
+    {
+      "name": "Password recovery",
+      "item": [
+        {
+          "name": "POST /api/v1/auth/password/forgot",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/password/forgot",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "auth",
+                "password",
+                "forgot"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"member@example.test\",\n  \"organizationId\": \"{{organizationId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/auth/password/requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/password/requests",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "auth",
+                "password",
+                "requests"
+              ],
+              "query": [
+                {
+                  "key": "organizationId",
+                  "value": "{{organizationId}}",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "POST /api/v1/auth/password/requests/{{requestId}}/complete",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/password/requests/{{requestId}}/complete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "auth",
+                "password",
+                "requests",
+                {
+                  "type": "variable",
+                  "value": "requestId"
+                },
+                "complete"
+              ],
+              "query": [
+                {
+                  "key": "organizationId",
+                  "value": "{{organizationId}}",
+                  "disabled": false
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newPassword\": \"Example-New-Password-2026\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        }
+      ]
+    },
+    {
+      "name": "Organizations and membership",
+      "item": [
+        {
+          "name": "GET /api/v1/organizations/{{organizationId}}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "POST /api/v1/organizations",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Design Workspace\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "PATCH /api/v1/organizations/{{organizationId}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"FlowOps Product Workspace\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/organizations/{{organizationId}}/members",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "members"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "pageSize",
+                  "value": "50",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/members",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "members"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "pageSize",
+                  "value": "50",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "POST /api/v1/organizations/{{organizationId}}/members",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "members"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"existing@example.test\",\n  \"role\": \"MEMBER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) { const body = pm.response.json(); const id = body.data?.id; if (id) pm.environment.set('createdMemberId', id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/v1/members",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "members"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"existing@example.test\",\n  \"role\": \"MEMBER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) { const body = pm.response.json(); const id = body.data?.id; if (id) pm.environment.set('createdMemberId', id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /api/v1/organizations/{{organizationId}}/users",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "users"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Taylor Member\",\n  \"email\": \"taylor@example.test\",\n  \"password\": \"Initial-Password-2026\",\n  \"role\": \"MEMBER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) { const body = pm.response.json(); const id = body.data?.id; if (id) pm.environment.set('createdUserId', id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/v1/organizations/{{organizationId}}/members/{{memberId}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/members/{{memberId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "members",
+                {
+                  "type": "variable",
+                  "value": "memberId"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"MANAGER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "PATCH /api/v1/members/{{memberId}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/members/{{memberId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "members",
+                {
+                  "type": "variable",
+                  "value": "memberId"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"MANAGER\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "DELETE /api/v1/organizations/{{organizationId}}/members/{{memberId}}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/members/{{memberId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "members",
+                {
+                  "type": "variable",
+                  "value": "memberId"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "DELETE /api/v1/members/{{memberId}}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/members/{{memberId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "members",
+                {
+                  "type": "variable",
+                  "value": "memberId"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        }
+      ]
+    },
+    {
+      "name": "Projects",
+      "item": [
+        {
+          "name": "GET /api/v1/projects",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "pageSize",
+                  "value": "50",
+                  "disabled": false
+                },
+                {
+                  "key": "search",
+                  "value": "Northstar",
+                  "disabled": false
+                },
+                {
+                  "key": "status",
+                  "value": "On track",
+                  "disabled": false
+                },
+                {
+                  "key": "ownerId",
+                  "value": "{{userId}}",
+                  "disabled": false
+                },
+                {
+                  "key": "sort",
+                  "value": "createdAt",
+                  "disabled": false
+                },
+                {
+                  "key": "order",
+                  "value": "desc",
+                  "disabled": false
+                },
+                {
+                  "key": "includeArchived",
+                  "value": "false",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "POST /api/v1/projects",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Website Refresh\",\n  \"description\": \"Refresh public site\",\n  \"status\": \"On track\",\n  \"progress\": 0,\n  \"valueAmount\": 25000,\n  \"currency\": \"USD\",\n  \"ownerId\": \"{{userId}}\",\n  \"startDate\": \"2026-10-03T00:00:00.000Z\",\n  \"dueDate\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) { const body = pm.response.json(); const id = body.data?.id; if (id) pm.environment.set('projectId', id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/v1/projects/{{projectId}}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "PATCH /api/v1/projects/{{projectId}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"At risk\",\n  \"progress\": 82\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "POST /api/v1/projects/{{projectId}}/archive",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}/archive",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "archive"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "DELETE /api/v1/projects/{{projectId}}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/projects/{{projectId}}/milestones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}/milestones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "milestones"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "POST /api/v1/projects/{{projectId}}/milestones",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}/milestones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "milestones"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Design review\",\n  \"dueDate\": \"2026-10-15T00:00:00.000Z\",\n  \"sortOrder\": 1,\n  \"completed\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) { const body = pm.response.json(); const id = body.data?.id; if (id) pm.environment.set('milestoneId', id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/v1/projects/{{projectId}}/milestones/{{itemId}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}/milestones/{{milestoneId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "milestones",
+                {
+                  "type": "variable",
+                  "value": "milestoneId"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completed\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "DELETE /api/v1/projects/{{projectId}}/milestones/{{itemId}}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}/milestones/{{milestoneId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "milestones",
+                {
+                  "type": "variable",
+                  "value": "milestoneId"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/organizations/{{organizationId}}/projects/{{projectId}}/milestones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/projects/{{projectId}}/milestones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "milestones"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "POST /api/v1/organizations/{{organizationId}}/projects/{{projectId}}/milestones",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/projects/{{projectId}}/milestones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "milestones"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Design review\",\n  \"dueDate\": \"2026-10-15T00:00:00.000Z\",\n  \"sortOrder\": 1,\n  \"completed\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) { const body = pm.response.json(); const id = body.data?.id; if (id) pm.environment.set('milestoneId', id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/v1/organizations/{{organizationId}}/projects/{{projectId}}/milestones/{{itemId}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/projects/{{projectId}}/milestones/{{milestoneId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "milestones",
+                {
+                  "type": "variable",
+                  "value": "milestoneId"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completed\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "DELETE /api/v1/organizations/{{organizationId}}/projects/{{projectId}}/milestones/{{itemId}}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/projects/{{projectId}}/milestones/{{milestoneId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "milestones",
+                {
+                  "type": "variable",
+                  "value": "milestoneId"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/projects/{{projectId}}/deliverables",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}/deliverables",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "deliverables"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "POST /api/v1/projects/{{projectId}}/deliverables",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}/deliverables",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "deliverables"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Prototype\",\n  \"description\": \"Interactive draft\",\n  \"completed\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) { const body = pm.response.json(); const id = body.data?.id; if (id) pm.environment.set('deliverableId', id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/v1/projects/{{projectId}}/deliverables/{{itemId}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}/deliverables/{{deliverableId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "deliverables",
+                {
+                  "type": "variable",
+                  "value": "deliverableId"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completed\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "DELETE /api/v1/projects/{{projectId}}/deliverables/{{itemId}}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}/deliverables/{{deliverableId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "deliverables",
+                {
+                  "type": "variable",
+                  "value": "deliverableId"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/organizations/{{organizationId}}/projects/{{projectId}}/deliverables",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/projects/{{projectId}}/deliverables",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "deliverables"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "POST /api/v1/organizations/{{organizationId}}/projects/{{projectId}}/deliverables",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/projects/{{projectId}}/deliverables",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "deliverables"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Prototype\",\n  \"description\": \"Interactive draft\",\n  \"completed\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) { const body = pm.response.json(); const id = body.data?.id; if (id) pm.environment.set('deliverableId', id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/v1/organizations/{{organizationId}}/projects/{{projectId}}/deliverables/{{itemId}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/projects/{{projectId}}/deliverables/{{deliverableId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "deliverables",
+                {
+                  "type": "variable",
+                  "value": "deliverableId"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completed\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "DELETE /api/v1/organizations/{{organizationId}}/projects/{{projectId}}/deliverables/{{itemId}}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/projects/{{projectId}}/deliverables/{{deliverableId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "deliverables",
+                {
+                  "type": "variable",
+                  "value": "deliverableId"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/projects/{{projectId}}/risks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}/risks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "risks"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "POST /api/v1/projects/{{projectId}}/risks",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}/risks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "risks"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Vendor delay\",\n  \"description\": \"Delivery date unconfirmed\",\n  \"resolved\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) { const body = pm.response.json(); const id = body.data?.id; if (id) pm.environment.set('riskId', id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/v1/projects/{{projectId}}/risks/{{itemId}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}/risks/{{riskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "risks",
+                {
+                  "type": "variable",
+                  "value": "riskId"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resolved\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "DELETE /api/v1/projects/{{projectId}}/risks/{{itemId}}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/{{projectId}}/risks/{{riskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "risks",
+                {
+                  "type": "variable",
+                  "value": "riskId"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/organizations/{{organizationId}}/projects/{{projectId}}/risks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/projects/{{projectId}}/risks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "risks"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "POST /api/v1/organizations/{{organizationId}}/projects/{{projectId}}/risks",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/projects/{{projectId}}/risks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "risks"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Vendor delay\",\n  \"description\": \"Delivery date unconfirmed\",\n  \"resolved\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) { const body = pm.response.json(); const id = body.data?.id; if (id) pm.environment.set('riskId', id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/v1/organizations/{{organizationId}}/projects/{{projectId}}/risks/{{itemId}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/projects/{{projectId}}/risks/{{riskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "risks",
+                {
+                  "type": "variable",
+                  "value": "riskId"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resolved\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "DELETE /api/v1/organizations/{{organizationId}}/projects/{{projectId}}/risks/{{itemId}}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/projects/{{projectId}}/risks/{{riskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "projects",
+                {
+                  "type": "variable",
+                  "value": "projectId"
+                },
+                "risks",
+                {
+                  "type": "variable",
+                  "value": "riskId"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        }
+      ]
+    },
+    {
+      "name": "Tasks and comments",
+      "item": [
+        {
+          "name": "GET /api/v1/tasks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "tasks"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "pageSize",
+                  "value": "50",
+                  "disabled": false
+                },
+                {
+                  "key": "search",
+                  "value": "launch",
+                  "disabled": false
+                },
+                {
+                  "key": "status",
+                  "value": "In review",
+                  "disabled": false
+                },
+                {
+                  "key": "priority",
+                  "value": "High",
+                  "disabled": false
+                },
+                {
+                  "key": "assigneeId",
+                  "value": "{{userId}}",
+                  "disabled": false
+                },
+                {
+                  "key": "projectId",
+                  "value": "{{projectId}}",
+                  "disabled": false
+                },
+                {
+                  "key": "sort",
+                  "value": "createdAt",
+                  "disabled": false
+                },
+                {
+                  "key": "order",
+                  "value": "desc",
+                  "disabled": false
+                },
+                {
+                  "key": "includeArchived",
+                  "value": "false",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/tasks/summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "tasks",
+                "summary"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "POST /api/v1/tasks",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "tasks"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Prepare launch brief\",\n  \"assignee\": \"Ava\",\n  \"priority\": \"High\",\n  \"status\": \"Queued\",\n  \"progress\": 0,\n  \"due\": \"Tomorrow\",\n  \"stage\": \"Not started\",\n  \"notes\": \"Draft the launch brief.\",\n  \"projectId\": \"{{projectId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) { const body = pm.response.json(); const id = body.data?.id; if (id) pm.environment.set('createdTaskId', id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/v1/tasks/{{taskId}}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks/{{taskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "tasks",
+                {
+                  "type": "variable",
+                  "value": "taskId"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "PATCH /api/v1/tasks/{{taskId}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks/{{taskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "tasks",
+                {
+                  "type": "variable",
+                  "value": "taskId"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Done\",\n  \"progress\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "POST /api/v1/tasks/{{taskId}}/archive",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks/{{taskId}}/archive",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "tasks",
+                {
+                  "type": "variable",
+                  "value": "taskId"
+                },
+                "archive"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "DELETE /api/v1/tasks/{{taskId}}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks/{{taskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "tasks",
+                {
+                  "type": "variable",
+                  "value": "taskId"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/tasks/{{taskId}}/comments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks/{{taskId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "tasks",
+                {
+                  "type": "variable",
+                  "value": "taskId"
+                },
+                "comments"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "POST /api/v1/tasks/{{taskId}}/comments",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks/{{taskId}}/comments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "tasks",
+                {
+                  "type": "variable",
+                  "value": "taskId"
+                },
+                "comments"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"body\": \"Please confirm the final launch date.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code >= 200 && pm.response.code < 300) { const body = pm.response.json(); const id = body.data?.id; if (id) pm.environment.set('createdCommentId', id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH /api/v1/tasks/{{taskId}}/comments/{{commentId}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks/{{taskId}}/comments/{{commentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "tasks",
+                {
+                  "type": "variable",
+                  "value": "taskId"
+                },
+                "comments",
+                {
+                  "type": "variable",
+                  "value": "commentId"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"body\": \"Updated comment text.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "DELETE /api/v1/tasks/{{taskId}}/comments/{{commentId}}",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks/{{taskId}}/comments/{{commentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "tasks",
+                {
+                  "type": "variable",
+                  "value": "taskId"
+                },
+                "comments",
+                {
+                  "type": "variable",
+                  "value": "commentId"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboard and analytics",
+      "item": [
+        {
+          "name": "GET /api/v1/dashboard/overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/dashboard/overview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "dashboard",
+                "overview"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/organizations/{{organizationId}}/dashboard/overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/dashboard/overview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "dashboard",
+                "overview"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/projects/summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/projects/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "projects",
+                "summary"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/analytics/overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/analytics/overview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "analytics",
+                "overview"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/organizations/{{organizationId}}/analytics/overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/analytics/overview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "analytics",
+                "overview"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        }
+      ]
+    },
+    {
+      "name": "Notifications, activity, and audit",
+      "item": [
+        {
+          "name": "GET /api/v1/notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "notifications"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "pageSize",
+                  "value": "50",
+                  "disabled": false
+                },
+                {
+                  "key": "read",
+                  "value": "false",
+                  "disabled": false
+                },
+                {
+                  "key": "dismissed",
+                  "value": "false",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/organizations/{{organizationId}}/notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "notifications"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "pageSize",
+                  "value": "50",
+                  "disabled": false
+                },
+                {
+                  "key": "read",
+                  "value": "false",
+                  "disabled": false
+                },
+                {
+                  "key": "dismissed",
+                  "value": "false",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "PATCH /api/v1/notifications/{{notificationId}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/{{notificationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "notifications",
+                {
+                  "type": "variable",
+                  "value": "notificationId"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"read\": true,\n  \"dismissed\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "PATCH /api/v1/organizations/{{organizationId}}/notifications/{{notificationId}}",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/notifications/{{notificationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "notifications",
+                {
+                  "type": "variable",
+                  "value": "notificationId"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"read\": true,\n  \"dismissed\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "POST /api/v1/notifications/{{notificationId}}/read",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/{{notificationId}}/read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "notifications",
+                {
+                  "type": "variable",
+                  "value": "notificationId"
+                },
+                "read"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "POST /api/v1/notifications/{{notificationId}}/dismiss",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/notifications/{{notificationId}}/dismiss",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "notifications",
+                {
+                  "type": "variable",
+                  "value": "notificationId"
+                },
+                "dismiss"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/activity",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/activity",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "activity"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "pageSize",
+                  "value": "50",
+                  "disabled": false
+                },
+                {
+                  "key": "targetType",
+                  "value": "TASK",
+                  "disabled": false
+                },
+                {
+                  "key": "targetId",
+                  "value": "{{taskId}}",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/organizations/{{organizationId}}/activity",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/activity",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "activity"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "pageSize",
+                  "value": "50",
+                  "disabled": false
+                },
+                {
+                  "key": "targetType",
+                  "value": "TASK",
+                  "disabled": false
+                },
+                {
+                  "key": "targetId",
+                  "value": "{{taskId}}",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/audit",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/audit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "audit"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "pageSize",
+                  "value": "50",
+                  "disabled": false
+                },
+                {
+                  "key": "targetType",
+                  "value": "USER",
+                  "disabled": false
+                },
+                {
+                  "key": "targetId",
+                  "value": "usr_demo_002",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET /api/v1/organizations/{{organizationId}}/audit",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}",
+                "description": "Used by short organization routes; scoped routes use the path parameter."
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/audit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                {
+                  "type": "variable",
+                  "value": "baseUrl"
+                },
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "audit"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "pageSize",
+                  "value": "50",
+                  "disabled": false
+                },
+                {
+                  "key": "targetType",
+                  "value": "USER",
+                  "disabled": false
+                },
+                {
+                  "key": "targetId",
+                  "value": "usr_demo_002",
+                  "disabled": false
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        }
+      ]
+    },
+    {
+      "name": "Custom roles and permissions",
+      "description": "Create a role, assign it to a member, and test its effective permissions. Delete is rejected while members still use the role.",
+      "item": [
+        {
+          "name": "GET role permission catalog",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/roles/permissions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "roles",
+                "permissions"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "GET organization roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/roles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "roles"
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "POST create custom role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/roles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "roles"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Finance Lead\",\n  \"description\": \"Read analytics and manage projects\",\n  \"permissions\": [\n    \"PROJECT_READ\",\n    \"ANALYTICS_READ\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) { const body = pm.response.json(); if (body.data?.id) pm.environment.set('customRoleId', body.data.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PATCH update custom role",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/roles/{{customRoleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "roles",
+                {
+                  "type": "variable",
+                  "value": "customRoleId"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"permissions\": [\n    \"PROJECT_READ\",\n    \"ANALYTICS_READ\",\n    \"AUDIT_READ\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "PATCH assign custom role to member",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/members/{{memberId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "members",
+                {
+                  "type": "variable",
+                  "value": "memberId"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customRoleId\": \"{{customRoleId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "PATCH clear custom role assignment",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/members/{{memberId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "members",
+                {
+                  "type": "variable",
+                  "value": "memberId"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customRoleId\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": []
+        },
+        {
+          "name": "DELETE custom role (only when unassigned)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "x-organization-id",
+                "value": "{{organizationId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/organizations/{{organizationId}}/roles/{{customRoleId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "organizations",
+                {
+                  "type": "variable",
+                  "value": "organizationId"
+                },
+                "roles",
+                {
+                  "type": "variable",
+                  "value": "customRoleId"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": []
+        }
+      ]
+    }
+  ]
+}

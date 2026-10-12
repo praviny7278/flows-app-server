@@ -1,0 +1,407 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum OrganizationRole {
+  OWNER
+  ADMIN
+  MANAGER
+  MEMBER
+  VIEWER
+}
+
+enum ProjectStatus {
+  ON_TRACK
+  AT_RISK
+  REVIEW
+  DONE
+}
+
+enum TaskStatus {
+  QUEUED
+  IN_REVIEW
+  BLOCKED
+  DONE
+}
+
+enum TaskPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  TASK_MENTIONED
+  APPROVAL_REQUIRED
+  PROJECT_UPDATED
+  SYSTEM
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+enum PasswordRecoveryStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  REJECTED
+  EXPIRED
+}
+
+model User {
+  id               String                    @id @default(cuid()) @map("_id")
+  email            String                    @unique
+  name             String
+  passwordHash     String
+  timezone         String                    @default("UTC")
+  preferences      Json?
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+  memberships      OrganizationMembership[]
+  sessions         Session[]
+  createdTasks     Task[]                    @relation("TaskCreator")
+  assignedTasks    Task[]                    @relation("TaskAssignee")
+  createdProjects  Project[]                 @relation("ProjectCreator")
+  ownedProjects    Project[]                 @relation("ProjectOwner")
+  comments         TaskComment[]
+  uploadedFiles    FileAttachment[]
+  notifications    Notification[]
+  activityEvents   ActivityEvent[]           @relation("ActivityActor")
+  auditEvents      AuditEvent[]              @relation("AuditActor")
+  sentInvitations  OrganizationInvitation[]  @relation("InvitationSender")
+  recoveryRequests PasswordRecoveryRequest[] @relation("RecoveryRequester")
+  reviewedRecoveryRequests PasswordRecoveryRequest[] @relation("RecoveryReviewer")
+  monitoringEvents MonitoringEvent[] @relation("MonitoringSubject")
+  actedMonitoringEvents MonitoringEvent[] @relation("MonitoringActor")
+}
+
+model Organization {
+  id          String                    @id @default(cuid()) @map("_id")
+  name        String
+  slug        String                    @unique
+  createdAt   DateTime                  @default(now())
+  updatedAt   DateTime                  @updatedAt
+  memberships OrganizationMembership[]
+  customRoles OrganizationCustomRole[]
+  invitations OrganizationInvitation[]
+  projects    Project[]
+  tasks       Task[]
+  comments    TaskComment[]
+  attachments FileAttachment[]
+  notifications Notification[]
+  activities  ActivityEvent[]
+  auditEvents AuditEvent[]
+  passwordRecoveryRequests PasswordRecoveryRequest[]
+  monitoringEvents MonitoringEvent[]
+
+  @@index([createdAt])
+}
+
+model OrganizationMembership {
+  id             String           @id @default(cuid()) @map("_id")
+  organizationId String
+  userId         String
+  role           OrganizationRole @default(MEMBER)
+  customRoleId   String?
+  joinedAt       DateTime         @default(now())
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customRole     OrganizationCustomRole? @relation(fields: [customRoleId], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, userId])
+  @@index([userId, role])
+  @@index([organizationId, customRoleId])
+}
+
+model OrganizationCustomRole {
+  id             String                    @id @default(cuid()) @map("_id")
+  organizationId String
+  name           String
+  description    String                    @default("")
+  permissions    String[]
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+  organization   Organization              @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  memberships    OrganizationMembership[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId, createdAt])
+}
+
+model OrganizationInvitation {
+  id             String           @id @default(cuid()) @map("_id")
+  organizationId String
+  email          String
+  role           OrganizationRole @default(MEMBER)
+  tokenHash      String           @unique
+  status         InvitationStatus @default(PENDING)
+  expiresAt      DateTime
+  invitedById    String
+  createdAt      DateTime         @default(now())
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invitedBy      User             @relation("InvitationSender", fields: [invitedById], references: [id], onDelete: Restrict)
+
+  @@unique([organizationId, email])
+  @@index([email, status])
+}
+
+model Session {
+  id        String   @id @default(cuid()) @map("_id")
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@index([expiresAt])
+}
+
+model PasswordRecoveryRequest {
+  id             String                  @id @default(cuid()) @map("_id")
+  requesterId    String
+  organizationId String?
+  requesterRole  OrganizationRole
+  status         PasswordRecoveryStatus  @default(PENDING)
+  expiresAt      DateTime?
+  reviewedById   String?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  requester      User                    @relation("RecoveryRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  organization   Organization?           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  reviewedBy     User?                   @relation("RecoveryReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, status, createdAt])
+  @@index([requesterId, status, createdAt])
+  @@index([status, requesterRole, createdAt])
+}
+
+model Project {
+  id             String             @id @default(cuid()) @map("_id")
+  organizationId String
+  name           String
+  description    String             @default("")
+  status         ProjectStatus      @default(ON_TRACK)
+  progress       Int                @default(0)
+  valueAmount    Int                @default(0)
+  currency       String             @default("USD")
+  ownerId        String?
+  ownerLabel     String?
+  startDate      DateTime?
+  dueDate        DateTime?
+  archivedAt     DateTime?
+  createdById    String
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  owner          User?              @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  createdBy      User               @relation("ProjectCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  milestones     ProjectMilestone[]
+  deliverables   ProjectDeliverable[]
+  risks          ProjectRisk[]
+  tasks          Task[]
+  attachments    FileAttachment[]
+
+  @@index([organizationId, status, updatedAt])
+  @@index([organizationId, updatedAt])
+  @@index([organizationId, createdAt])
+  @@index([organizationId, archivedAt])
+  @@index([ownerId])
+}
+
+model ProjectMilestone {
+  id          String    @id @default(cuid()) @map("_id")
+  projectId   String
+  title       String
+  dueDate     DateTime?
+  completedAt DateTime?
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, sortOrder])
+}
+
+model ProjectDeliverable {
+  id          String    @id @default(cuid()) @map("_id")
+  projectId   String
+  title       String
+  description String    @default("")
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, completedAt])
+}
+
+model ProjectRisk {
+  id          String    @id @default(cuid()) @map("_id")
+  projectId   String
+  title       String
+  description String    @default("")
+  resolvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, resolvedAt])
+}
+
+model Task {
+  id             String       @id @default(cuid()) @map("_id")
+  organizationId String
+  projectId      String?
+  title          String
+  notes          String       @default("")
+  assigneeId     String?
+  assigneeLabel  String?
+  priority       TaskPriority @default(MEDIUM)
+  status         TaskStatus   @default(QUEUED)
+  progress       Int          @default(0)
+  dueDate        DateTime?
+  stage          String       @default("Not started")
+  createdById    String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  completedAt    DateTime?
+  archivedAt     DateTime?
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  project        Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  assignee       User?        @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  createdBy      User         @relation("TaskCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  comments       TaskComment[]
+  attachments    FileAttachment[]
+
+  @@index([organizationId, status, updatedAt])
+  @@index([organizationId, updatedAt])
+  @@index([organizationId, createdAt])
+  @@index([organizationId, priority, updatedAt])
+  @@index([organizationId, dueDate])
+  @@index([organizationId, assigneeId, status])
+  @@index([projectId])
+  @@index([archivedAt])
+}
+
+model TaskComment {
+  id             String       @id @default(cuid()) @map("_id")
+  organizationId String
+  taskId         String
+  authorId       String
+  body           String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  task           Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  author         User         @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId, taskId, createdAt])
+}
+
+model FileAttachment {
+  id             String       @id @default(cuid()) @map("_id")
+  organizationId String
+  projectId      String?
+  taskId         String?
+  uploadedById   String
+  storageKey     String       @unique
+  fileName       String
+  contentType    String
+  sizeBytes      BigInt
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  project        Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  task           Task?        @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  uploadedBy     User         @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
+
+  @@index([organizationId, createdAt])
+  @@index([taskId])
+  @@index([projectId])
+}
+
+model Notification {
+  id             String           @id @default(cuid()) @map("_id")
+  organizationId String
+  userId         String
+  type           NotificationType
+  title          String
+  message        String
+  targetType     String?
+  targetId       String?
+  readAt         DateTime?
+  dismissedAt    DateTime?
+  createdAt      DateTime         @default(now())
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, userId, readAt, createdAt])
+}
+
+model ActivityEvent {
+  id             String       @id @default(cuid()) @map("_id")
+  organizationId String
+  actorId        String?
+  action         String
+  targetType     String
+  targetId       String
+  summary        String
+  metadata       Json?
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  actor          User?        @relation("ActivityActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, createdAt])
+  @@index([targetType, targetId])
+}
+
+model AuditEvent {
+  id             String       @id @default(cuid()) @map("_id")
+  organizationId String
+  actorId        String?
+  action         String
+  targetType     String
+  targetId       String
+  metadata       Json?
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  actor          User?        @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, createdAt])
+  @@index([targetType, targetId])
+}
+
+enum MonitoringEventType {
+  LOGIN
+  ACCOUNT_CREATED
+  PASSWORD_CHANGED
+  PAGE_VIEW
+}
+
+model MonitoringEvent {
+  id             String               @id @default(cuid()) @map("_id")
+  type           MonitoringEventType
+  userId         String?
+  actorId        String?
+  organizationId String?
+  role           String?
+  path           String?
+  createdAt      DateTime             @default(now())
+  user           User?                @relation("MonitoringSubject", fields: [userId], references: [id], onDelete: SetNull)
+  actor          User?                @relation("MonitoringActor", fields: [actorId], references: [id], onDelete: SetNull)
+  organization   Organization?        @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, type, createdAt])
+  @@index([userId, type, createdAt])
+  @@index([type, createdAt])
+}

@@ -1,0 +1,47 @@
+# Reference stack for running the API behind a load balancer with multiple replicas.
+# Deployment comes later; this is ready to use when you deploy:
+#   docker compose up --build --scale api=3
+services:
+  redis:
+    image: redis:7-alpine
+    # everysec gives ~1s durability on power loss; use "always" for strict zero-loss page views.
+    command: redis-server --appendonly yes --appendfsync everysec
+    restart: unless-stopped
+    volumes:
+      - flowops-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    restart: unless-stopped
+    expose:
+      - "4000"
+    environment:
+      PORT: "4000"
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL}
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost}
+      REDIS_URL: redis://redis:6379
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+      SUPER_ADMIN_EMAIL: ${SUPER_ADMIN_EMAIL:-}
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  lb:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
+
+volumes:
+  flowops-redis-data:

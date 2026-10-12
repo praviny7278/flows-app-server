@@ -1,0 +1,53 @@
+export const tasks = [
+  {
+    id: "task-1",
+    title: "Launch checklist review",
+    assignee: "Ava",
+    priority: "High",
+    status: "In review",
+    progress: 76,
+    due: "Today",
+    stage: "Ready for sign-off",
+    notes: "Need final stakeholder sign-off, confirm launch sequence, and align marketing timeline before publishing the rollout plan.",
+  },
+  {
+    id: "task-2",
+    title: "Vendor onboarding follow-up",
+    assignee: "Marcus",
+    priority: "Medium",
+    status: "Queued",
+    progress: 42,
+    due: "Tomorrow",
+    stage: "Waiting on legal",
+    notes: "Follow up with legal and confirm the vendor paperwork is complete.",
+  },
+  {
+    id: "task-3",
+    title: "Budget sign-off",
+    assignee: "Kian",
+    priority: "High",
+    status: "Blocked",
+    progress: 24,
+    due: "Thu",
+    stage: "Finance approval",
+    notes: "Waiting for finance approval before the work can continue.",
+  },
+  {
+    id: "task-4",
+    title: "Ops documentation refresh",
+    assignee: "Nora",
+    priority: "Low",
+    status: "Done",
+    progress: 100,
+    due: "Completed",
+    stage: "Published",
+    notes: "Documentation has been published to the workspace.",
+  },
+];
+
+export const projects = [
+  { id: "northstar-expansion", name: "Northstar Expansion", owner: "Ava Patel", status: "On track", progress: 82, value: "$145K" },
+  { id: "client-onboarding", name: "Client Onboarding", owner: "Maya Holt", status: "At risk", progress: 58, value: "$82K" },
+  { id: "customer-health-upgrade", name: "Customer Health Upgrade", owner: "Nora Lee", status: "Review", progress: 74, value: "$63K" },
+  { id: "finance-automation", name: "Finance Automation", owner: "Kian Ross", status: "On track", progress: 90, value: "$112K" },
+];
