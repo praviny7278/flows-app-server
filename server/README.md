@@ -58,10 +58,22 @@ The general route reference is in `API_ENDPOINTS.md`. Import the collection from
 
 Core routes are available both in organization-scoped form (for example, `/api/v1/organizations/:organizationId/tasks`) and, where appropriate, in a short form (for example, `/api/v1/tasks`) that resolves the user's selected `x-organization-id` or first organization. Dashboard and summary endpoints are `/api/v1/dashboard/overview`, `/api/v1/tasks/summary`, and `/api/v1/projects/summary`; analytics is available at `/api/v1/analytics/overview`.
 
+### Deploying on Render
+
+The repository-root `render.yaml` defines a native Node web service rooted in this folder. Render installs the locked dependencies, generates the Prisma client, starts the API with `npm start`, and checks `GET /health`. The service uses Node.js 22, as specified in `package.json`.
+
+1. In Render, create a new Blueprint from this repository and use the repository root as the Blueprint directory.
+2. Set `DATABASE_URL` to a MongoDB connection string for a hosted MongoDB database.
+3. Set `WEB_ORIGIN` to the exact origin of the deployed frontend (scheme and hostname, without a path).
+4. Optionally set `REDIS_URL` for shared session caching and distributed rate limits. Without it, the API runs without Redis.
+5. Optionally set `RESEND_API_KEY` and `EMAIL_FROM` if password-recovery email delivery is configured.
+
+Render supplies `PORT` at runtime. The service plan in the Blueprint is free, so it may spin down after inactivity. The app is still a demo scaffold; review the demo limitations above before exposing it publicly or using real user data.
+
 ## Scaling and performance
 
-- **Rate limiting:** Redis-backed limiters on every `/api/v1` route (300/min per IP), login (10/min per IP+email), forgot-password (5/min per IP), page views (60/min per session), and an authenticated per-user budget (600/min). All fail open if Redis is down. `nginx.conf` adds edge `limit_req`/`limit_conn` zones (30 r/s general, 5 r/s on `/api/v1/auth/`) as a first line of defense.
-- **Process scaling:** `npm run start:cluster` forks one worker per CPU (cap with `WORKERS`); `npm start` runs a single process with `--max-old-space-size=4096` and `UV_THREADPOOL_SIZE=8`. In Docker, scale horizontally with `docker compose up --scale api=N` instead of clustering inside the container.
+- **Rate limiting:** Redis-backed limiters on every `/api/v1` route (300/min per IP), login (10/min per IP+email), forgot-password (5/min per IP), page views (60/min per session), and an authenticated per-user budget (600/min). All fail open if Redis is down.
+- **Process scaling:** `npm run start:cluster` forks one worker per CPU (cap with `WORKERS`); `npm start` runs a single process with `--max-old-space-size=4096` and `UV_THREADPOOL_SIZE=8`. On Render, scale with additional service instances rather than starting a cluster in one instance.
 - **Connection pooling:** MongoDB driver default is `maxPoolSize=100` per process. Divide the cluster connection budget across replicas (e.g. `?maxPoolSize=50` for 2 instances); Atlas limits are 500 (Free/Flex) per node.
 - **Indexes:** `prisma/schema.prisma` carries compound indexes for every list query path; run `npm run db:push` after pulling schema changes.
 - **Analytics counts:** monitoring dashboard totals use a 15s in-process count cache (`src/count-cache.js`).
@@ -71,7 +83,7 @@ Core routes are available both in organization-scoped form (for example, `/api/v
 
 ## Database Foundation
 
-- DB is configured through `DATABASE_URL`; the old PostgreSQL Docker Compose setup is commented out.
+- DB is configured through `DATABASE_URL` and MongoDB.
 - `prisma/schema.prisma` defines users, organizations, memberships, sessions, projects, tasks, comments, attachments, notifications, activity, and audit records with string IDs mapped to MongoDB `_id` fields.
 - MongoDB uses `prisma db push`; the existing SQL migration under `prisma/migrations/` is legacy PostgreSQL history and is not applied.
 - `prisma/seed.js` creates fake workspace, project, and task records plus a demo user with a bcrypt-hashed password.

@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: flowops-server
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm ci && npm run db:generate
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: WEB_ORIGIN
+        sync: false
