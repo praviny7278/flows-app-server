@@ -1793,7 +1793,7 @@ export function createApiRouter(prisma) {
       tasksByStatus,
       recentTasks,
       recentActivity,
-      teamMembers,
+      teamMemberships,
       unreadNotifications,
       weeklyThroughput,
     ] = await Promise.all([
@@ -1820,7 +1820,7 @@ export function createApiRouter(prisma) {
       }),
       prisma.organizationMembership.findMany({
         where: { organizationId },
-        include: { user: { select: { id: true, name: true, email: true } } },
+        select: { userId: true, role: true },
         orderBy: { joinedAt: "asc" },
         take: 8,
       }),
@@ -1836,6 +1836,14 @@ export function createApiRouter(prisma) {
       }),
       Promise.all(dailyThroughputQueries),
     ]);
+
+    const teamUsers = teamMemberships.length === 0
+      ? []
+      : await prisma.user.findMany({
+        where: { id: { in: teamMemberships.map(({ userId }) => userId) } },
+        select: { id: true, name: true, email: true },
+      });
+    const teamUsersById = new Map(teamUsers.map((user) => [user.id, user]));
 
     response.json({
       data: {
@@ -1854,12 +1862,15 @@ export function createApiRouter(prisma) {
         },
         weeklyThroughput,
         activity: recentActivity,
-        team: teamMembers.map(({ role, user }) => ({
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: roleLabels[role],
-        })),
+        team: teamMemberships.flatMap(({ role, userId }) => {
+          const user = teamUsersById.get(userId);
+          return user ? [{
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: roleLabels[role],
+          }] : [];
+        }),
         notifications: { unread: unreadNotifications },
       },
     });
