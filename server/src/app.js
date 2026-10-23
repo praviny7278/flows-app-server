@@ -54,14 +54,18 @@ function hashSessionId(sessionId) {
 }
 
 function setSessionCookie(response, sessionId, maxAgeSeconds) {
-  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  const production = process.env.NODE_ENV === "production";
+  const secure = production ? "; Secure" : "";
+  const sameSite = production ? "None" : "Lax";
   const maxAge = maxAgeSeconds ? `; Max-Age=${maxAgeSeconds}` : "";
-  response.setHeader("Set-Cookie", `flowops_session=${sessionId}; HttpOnly; SameSite=Lax; Path=/${maxAge}${secure}`);
+  response.setHeader("Set-Cookie", `flowops_session=${sessionId}; HttpOnly; SameSite=${sameSite}; Path=/${maxAge}${secure}`);
 }
 
 function clearSessionCookie(response) {
-  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
-  response.setHeader("Set-Cookie", `flowops_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0${secure}`);
+  const production = process.env.NODE_ENV === "production";
+  const secure = production ? "; Secure" : "";
+  const sameSite = production ? "None" : "Lax";
+  response.setHeader("Set-Cookie", `flowops_session=; HttpOnly; SameSite=${sameSite}; Path=/; Max-Age=0${secure}`);
 }
 
 function sendUnauthenticated(response) {
@@ -207,7 +211,7 @@ function sendRateLimited(_request, response) {
 
 export function createApp() {
   const app = express();
-  const webOrigin = process.env.WEB_ORIGIN ?? "http://localhost:3000";
+  const webOrigin = process.env.WEB_ORIGIN ?? "https://flows-app-frontend-1.onrender.com";
 
   app.set("trust proxy", 1);
   app.disable("x-powered-by");
