@@ -892,7 +892,10 @@ export function createApiRouter(prisma) {
   router.get(["/organizations/:organizationId/members", "/members"], withOrganization, requirePermission("MEMBER_READ"), async (request, response) => {
     const pagination = parsePagination(request, response);
     if (!pagination) return;
-    const where = { organizationId: request.organization.id };
+    const where = {
+      organizationId: request.organization.id,
+      user: { is: {} },
+    };
     const [memberships, total] = await Promise.all([
       prisma.organizationMembership.findMany({
         where,
